@@ -1,0 +1,16 @@
+[
+{
+  "modid": "minecraftjs",
+  "name": "Minecraft.js",
+  "description": "JavaScript extension for Minecraft Forge",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["ExampleDude"],
+  "credits": "Minecraft.js",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
