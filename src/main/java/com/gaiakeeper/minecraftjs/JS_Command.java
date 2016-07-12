@@ -2,6 +2,7 @@ package com.gaiakeeper.minecraftjs;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 
 public class JS_Command extends CommandBase {
 	
@@ -16,6 +17,11 @@ public class JS_Command extends CommandBase {
         minecraftjs = mjs;
     }
 
+    @Override
+    public int getRequiredPermissionLevel() {
+        return 0;
+    }
+    
 	@Override
 	public String getCommandName() {
 		return "js";
@@ -28,15 +34,23 @@ public class JS_Command extends CommandBase {
 
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
+		EntityPlayerMP player;
+		if ( sender instanceof EntityPlayerMP ){
+			player = (EntityPlayerMP)sender;
+		}
+		else {
+			player = getPlayer(sender, "@p");		// nearest player
+		}
+		
 		if ( args[0].endsWith(".js") )
-			minecraftjs.runScript(sender, args[0], args);
+			minecraftjs.runScript(player, args[0], args);
 		else {
             String s = "";
             for (int i=0; i < args.length; i++) {
                 s += " ";
             	s += args[i];
 			}
-            minecraftjs.runScript(sender, s);
+            minecraftjs.runScript(player, s);
 		}
 	}
 
