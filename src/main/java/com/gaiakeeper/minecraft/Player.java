@@ -4,16 +4,13 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
 import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.Vec3;
 
 public class Player extends Mob {
 	protected EntityPlayerMP _player;
 	protected PlayerInventory _inventory;
 	protected Logger _logger;
-	
-	protected static ChatStyle chatStyle = new ChatStyle();
 	
 	public Player(EntityPlayerMP player, Logger logger){
 		super(player);
@@ -21,7 +18,6 @@ public class Player extends Mob {
 		_player = player;
 		_inventory = new PlayerInventory(_player.inventory);
 		_logger = logger;
-		chatStyle.setColor(EnumChatFormatting.GRAY);
 	};
 
 	public EntityPlayerMP getPlayer(){
@@ -59,6 +55,65 @@ public class Player extends Mob {
 
 	public void setLocation(Location loc){
 		_player.setPositionAndUpdate(loc.x, loc.y, loc.z);
+	}
+	
+	public int getDirection(){
+		Vec3 v = _player.getLookVec();
+
+		double ax = Math.abs(v.xCoord);
+		double az = Math.abs(v.zCoord);
+		
+		if ( ax > az ){
+			if ( v.xCoord > 0 ) return WorldEdit.facing_east;
+			return WorldEdit.facing_west;
+		}
+		
+		if ( v.zCoord > 0 ) return WorldEdit.facing_south;
+		return WorldEdit.facing_north;
+	}
+	
+	public int getOppositeDirection(){
+		switch(getDirection()){
+			case WorldEdit.facing_east : return WorldEdit.facing_west;
+			case WorldEdit.facing_west : return WorldEdit.facing_east;
+			case WorldEdit.facing_north : return WorldEdit.facing_south;
+			case WorldEdit.facing_south : return WorldEdit.facing_north;
+			case WorldEdit.facing_up : return WorldEdit.facing_down;
+			case WorldEdit.facing_down : return WorldEdit.facing_up;
+		}
+		return WorldEdit.facing_east;
+	}
+	
+	public Location getDirectedLocation(int width, int height, int depth){
+		Location loc = getLocation();
+
+		Vec3 v = _player.getLookVec();
+		
+		int t = height;
+		if (v.yCoord > 0.9){ // up
+			height = depth;
+			depth = t;
+		}
+		else if (v.yCoord < -0.9){ // down
+			height = -depth;
+			depth = t;
+		}
+		
+		int dir = getDirection();
+		if (dir == WorldEdit.facing_east){
+			loc = loc.add(depth, height, width);
+		}
+		else if (dir == WorldEdit.facing_west){
+			loc = loc.add(-depth, height, -width);
+		}
+		else if (dir == WorldEdit.facing_north){
+			loc = loc.add(width, height, -depth);
+		}
+		else if (dir == WorldEdit.facing_south){
+			loc = loc.add(-width, height, depth);
+		}
+		
+		return loc;
 	}
 	
 	public Location getSpawnPoint(){
@@ -142,12 +197,6 @@ public class Player extends Mob {
 	
 	public void setInventorySlotInHand(int slot){
 		_inventory.setSlotInHand(slot);
-	}
-
-	public void print(String msg){
-		ChatComponentText chat = new ChatComponentText(msg);
-		chat.setChatStyle(chatStyle);
-		_player.addChatMessage(chat);
 	}
 
 	public void chat(String msg){
