@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import org.apache.logging.log4j.Logger;
 
+import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.entity.Entity;
@@ -39,6 +40,7 @@ public class WorldEdit {
 	public static boolean breakBlockEnabled = true;
 	public static boolean placeBlockEnabled = true;
 	public static boolean explosionEnabled = true;
+	public static String hoeCommand = null;
 	
 	public static Names nameTable = Names.getDefaultNames();
 
@@ -75,7 +77,11 @@ public class WorldEdit {
 
 		manager.sendChatMsg(chat);
 	}
-
+	
+	public void setHoeCommand(String cmd){
+		hoeCommand = cmd;
+	}
+	
 	public Mob createMob(String name){
 		String n = nameTable.lookup(name);
 		if (n == null) n = name;
@@ -224,6 +230,20 @@ public class WorldEdit {
 		if ( b != null ){
 			_world.setBlock(x, y, z, b);
 			_world.setBlockMetadataWithNotify(x,  y,  z, direction + 1, 3);
+		}
+	}
+
+	public void setTrapDoor(Location loc, int direction, String name){
+		setTrapDoor(loc.x, loc.y, loc.z, direction, name);
+	}
+	
+	// direction - 0: south, 1: north, 2: east, 3: west
+	public void setTrapDoor(int x, int y, int z, int direction, String name){
+		int map[] = { 2, 3, 0, 1, 0, 0 };		// east, west, south, north, up, down
+		Block b = createBlock(name);
+		if ( b != null ){
+			_world.setBlock(x, y, z, b);
+			_world.setBlockMetadataWithNotify(x,  y,  z, map[direction], 3);
 		}
 	}
 
@@ -679,7 +699,7 @@ public class WorldEdit {
 		Iterator itr = _world.loadedEntityList.iterator();
 		while ( itr.hasNext() ){
 			Entity e = (Entity)itr.next();
-			if ( EntityList.getEntityString(e) == name ){
+			if ( name.equalsIgnoreCase(EntityList.getEntityString(e)) ){
 				count ++;
 			}
 		}
@@ -722,7 +742,7 @@ public class WorldEdit {
 		Iterator itr = _world.loadedEntityList.iterator();
 		while ( itr.hasNext() ){
 			Entity e = (Entity)itr.next();
-			if ( EntityList.getEntityString(e) == name ){
+			if ( name.equalsIgnoreCase(EntityList.getEntityString(e)) ){
 				_world.removeEntity(e);
 				count ++;
 			}
@@ -762,22 +782,39 @@ public class WorldEdit {
 		
 		return count;
 	}
+	
+	public Mob findMob(String name){
+		Iterator itr = _world.loadedEntityList.iterator();
+		while ( itr.hasNext() ){
+			Entity e = (Entity)itr.next();
+			if ( e != null && (e instanceof EntityLiving)){
+_logger.info("---------------------------- findMob()" + ((EntityLiving)e).getCommandSenderName() + "...");
+				if ( name.equalsIgnoreCase(((EntityLiving)e).getCommandSenderName())){
+_logger.info("---------------------------- findMob() FOUND -----------------------");
+					return new Mob((EntityLiving)e);
+				}
+			}
+		}
+		
+		return null;
+	}
 
 	public GameRules getGameRules(){
 		return _gamerules;
 	}
 	
 	public void printAllMobs(){
-		_logger.info("---------------------------- printAllLoadedEntities() BEGIN -----------------------");
+		_logger.info("---------------------------- printAllMobs() BEGIN -----------------------");
 		Iterator itr = _world.loadedEntityList.iterator();
 		while ( itr.hasNext() ){
 			Entity e = (Entity)itr.next();
 			if ( (e != null) && (e instanceof EntityLiving) ){
 				int id = e.getEntityId();
-				_logger.info("Entity [id: " + id + ", entity: " + e);
+				_logger.info("Entity [id: " + id + ", entity: " + e
+						+ ", name: " + ((EntityLiving)e).getCommandSenderName() + ", " + ((EntityLiving)e).getCustomNameTag());
 			}
 		}
-		_logger.info("---------------------------- printAllLoadedEntities() END -----------------------");
+		_logger.info("---------------------------- printAllMobs() END -----------------------");
 	}
 	
 	public void printAllEntities(){
@@ -802,7 +839,7 @@ public class WorldEdit {
 			
 			int id = registry.getIDForObject(obj);
 			String name = registry.getNameForObject(obj);
-			_logger.info("Item [id: " + id + ", name: " + name);
+			_logger.info("Item [id: " + id + "], name: " + name);
 		}
 		_logger.info("---------------------------- printAllItemTypes() END -----------------------");
 	}
@@ -816,16 +853,27 @@ public class WorldEdit {
 			
 			int id = registry.getIDForObject(obj);
 			String name = registry.getNameForObject(obj);
-			_logger.info("Block [id: " + id + ", name: " + name);
+			_logger.info("Block [id: " + id + "], name: " + name);
 		}
 		_logger.info("---------------------------- printAllBlockTypes() END -----------------------");
 	}
 	
 	public void printAllEntityTypes(){
 		_logger.info("---------------------------- printAllEntityTypes() BEGIN -----------------------");
-		Map IDtoClassMapping = EntityList.IDtoClassMapping;
-		Map classToStringMapping = EntityList.classToStringMapping;
+		Map stringToClassMapping = EntityList.stringToClassMapping;
 		
+		Set Names = stringToClassMapping.keySet();
+		Iterator itr = Names.iterator();
+		while( itr.hasNext() ){
+			String name = (String)itr.next();
+			Class c = (Class)stringToClassMapping.get(name);
+
+			_logger.info("Entity name: " + name);
+		}
+		/*
+//		Map IDtoClassMapping = EntityList.IDtoClassMapping;
+		Map classToStringMapping = EntityList.classToStringMapping;
+
 		Set IDs = IDtoClassMapping.keySet();
 		Iterator itr = IDs.iterator();
 		while( itr.hasNext() ){
@@ -833,8 +881,9 @@ public class WorldEdit {
 			Class c = (Class)IDtoClassMapping.get(id);
 			String name = (String)classToStringMapping.get(c);
 
-			_logger.info("Entity [id: " + id + ", name: " + name);
+			_logger.info("Entity [id: " + id + "], name: " + name);
 		}
+		*/
 		_logger.info("---------------------------- printAllEntityTypes() END -----------------------");
 	}
 	

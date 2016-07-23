@@ -41,6 +41,26 @@ public class Item {
 		return _itemstack.getDisplayName();
 	}
 	
+	public void setName(String name){
+		_itemstack.setStackDisplayName(name);
+	}
+	
+	public int getDamage(){
+		return _itemstack.getItemDamage();
+	}
+	
+	public void setDamage(int damage){
+		_itemstack.setItemDamage(damage);
+	}
+	
+	public int getDamageMax(){
+		return _itemstack.getMaxDamage();
+	}
+	
+	public void setDamageMax(int damage){
+		_item.setMaxDamage(damage);
+	}
+	
 	public void enchant(int enchantment, int level){
 		_itemstack.addEnchantment(Enchantment.enchantmentsList[enchantment], level);
 	}
