@@ -1,10 +1,10 @@
 # Minecraft.js
 
-[Minecraft.js](https://github.com/gaiakeeper/Minecraft.js)는 Javascript로 Minecraft를 쉽게 확장할 수 있도록 하는 Forge 1.7.10 모드다. [Minecraft.js.modules](https://github.com/gaiakeeper/Minecraft.js.modules)은 Minecraft.js를 사용하는 예제와 모듈 라이브러리이다.
+[Minecraft.js](https://github.com/bosornd/Minecraft.js)는 Javascript로 Minecraft를 쉽게 확장할 수 있도록 하는 Forge 1.7.10 모드다. [Minecraft.js.modules](https://github.com/bosornd/Minecraft.js.modules)은 Minecraft.js를 사용하는 예제와 모듈 라이브러리이다.
 
 ## 사용법
 
-Minecraft에서 `js`, `jsc` 명령어를 지원한다. 자세한 사용법 및 예제는 [Minecraft.js.modules](https://github.com/gaiakeeper/Minecraft.js.modules)을 참고하면 된다.
+Minecraft에서 `js`, `jsc` 명령어를 지원한다. 자세한 사용법 및 예제는 [Minecraft.js.modules](https://github.com/bosornd/Minecraft.js.modules)을 참고하면 된다.
 
 ### `js` 명령어
 
